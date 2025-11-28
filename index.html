@@ -2,869 +2,242 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Roulette Casino Game Demo — Browser Simulation</title>
+  <title>Free Roulette Casino Game Demo — Online Simulator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta
     name="description"
-    content="Casino-style Roulette game demo in your browser: animated wheel, inside/outside bets, chips, virtual balance and spin history — no real money."
+    content="Free roulette casino game demo in your browser: animated European wheel with real number order, realistic table layout, inside/outside bets, virtual balance and spin history — no real-money gambling."
   />
-  <style>
-    :root {
-      --bg: #050816;
-      --bg-elevated: #101426;
-      --accent: #ffb800;
-      --accent-soft: rgba(255, 184, 0, 0.12);
-      --accent-strong: #ffdf66;
-      --danger: #ff4466;
-      --danger-soft: rgba(255, 68, 102, 0.12);
-      --green: #38d996;
-      --green-soft: rgba(56, 217, 150, 0.12);
-      --text: #f5f5f8;
-      --text-soft: #a0a3b1;
-      --border: #22263b;
-      --table-green: #0b4a32;
-      --table-green-dark: #053323;
-      --chip-blue: #4fa3ff;
-      --chip-purple: #a56bff;
-      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        "Liberation Mono", "Courier New", monospace;
-    }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Free Roulette Casino Game Demo — Online Simulator" />
+  <meta
+    property="og:description"
+    content="Try this browser-based roulette demo with a realistic European wheel, roulette table layout, chips, virtual balance and spin history. No registration or real money required."
+  />
+  <meta property="og:url" content="https://live-roulette.github.io/" />
+  <meta property="og:site_name" content="Live Roulette Demo" />
+  <meta name="twitter:card" content="summary_large_image" />
 
-    body {
-      font-family: var(--font-main);
-      background:
-        radial-gradient(circle at top, #212653 0, #050816 55%, #010208 100%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+  <!-- JSON-LD: describe this page as a free web game -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Roulette Casino Game Demo",
+    "applicationCategory": "Game",
+    "operatingSystem": "Any",
+    "description": "Casino-style roulette demo with a European single-zero wheel, interactive table layout and virtual chips. Players can test roulette strategies for free in the browser.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
     }
+  }
+  </script>
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    header {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .kicker {
-      font-size: 0.8rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent-strong);
-    }
-
-    h1 {
-      font-size: clamp(1.9rem, 3vw, 2.5rem);
-      font-weight: 700;
-    }
-
-    .lead {
-      max-width: 760px;
-      font-size: 0.95rem;
-      color: var(--text-soft);
-      line-height: 1.6;
-    }
-
-    /* Layout */
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.8fr);
-      gap: 18px;
-      align-items: flex-start;
-    }
-
-    @media (max-width: 950px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
+  <!-- JSON-LD: FAQ markup -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is this roulette game free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, this roulette demo is completely free. All chips and winnings are virtual, and the game runs entirely in your browser without deposits or registrations."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I play for real money here?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. This roulette simulator is designed only for practice and education. It does not accept real deposits, pay out winnings, or connect to any casino operator."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need an account to use this roulette demo?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No account is required. You can open the page, place demo bets on the roulette table, and spin the wheel instantly without logging in."
+        }
       }
-    }
-
-    .card {
-      background: radial-gradient(circle at top left, #20264b 0, #050816 55%);
-      border-radius: 18px;
-      padding: 16px 16px 18px;
-      border: 1px solid var(--border);
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(16px);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-
-    .title-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo {
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      font-size: 0.88rem;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #ffb800, #ffdf99);
-      color: #160b00;
-      box-shadow: 0 0 14px rgba(255, 184, 0, 0.4);
-    }
-
-    .subtitle {
-      font-size: 0.85rem;
-      color: var(--text-soft);
-    }
-
-    .round-info {
-      text-align: right;
-      font-size: 0.78rem;
-      color: var(--text-soft);
-    }
-
-    .round-id {
-      font-weight: 600;
-      color: #ffffff;
-    }
-
-    .phase-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 2px 10px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-top: 4px;
-    }
-
-    .phase-pill span.dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--green);
-      box-shadow: 0 0 10px var(--green);
-    }
-
-    .phase-idle {
-      border-color: rgba(255, 255, 255, 0.25);
-      color: var(--text-soft);
-    }
-
-    .phase-betting {
-      border-color: rgba(79, 163, 255, 0.7);
-      color: #9ac5ff;
-    }
-
-    .phase-spinning {
-      border-color: rgba(255, 184, 0, 0.7);
-      color: var(--accent-strong);
-    }
-
-    .phase-result {
-      border-color: rgba(255, 255, 255, 0.7);
-      color: #ffffff;
-    }
-
-    .phase-label {
-      margin-left: 2px;
-    }
-
-    /* WHEEL */
-    .wheel-shell {
-      margin-top: 8px;
-      border-radius: 16px;
-      padding: 10px;
-      background: radial-gradient(circle at top, #262b5a 0, #050816 70%);
-      border: 1px solid rgba(105, 128, 205, 0.7);
-      position: relative;
-      overflow: hidden;
-      height: 260px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .wheel-top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      font-size: 0.8rem;
-      color: var(--text-soft);
-    }
-
-    .result-main {
-      font-size: 1.1rem;
-      font-family: var(--font-mono);
-    }
-
-    .result-main strong {
-      font-size: 1.2rem;
-    }
-
-    .result-color {
-      text-transform: uppercase;
-      font-size: 0.78rem;
-      margin-left: 6px;
-    }
-
-    .result-red {
-      color: #ff9bb0;
-    }
-    .result-black {
-      color: #cbd1ff;
-    }
-    .result-green {
-      color: var(--accent-strong);
-    }
-
-    .last-results {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 3px;
-    }
-
-    .result-chip {
-      min-width: 28px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      font-family: var(--font-mono);
-      text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(8, 10, 30, 0.9);
-      color: var(--text-soft);
-    }
-
-    .chip-red {
-      background: var(--danger-soft);
-      border-color: rgba(255, 68, 102, 0.7);
-      color: #ffbccb;
-    }
-
-    .chip-black {
-      background: rgba(20, 24, 50, 0.9);
-      border-color: rgba(180, 190, 255, 0.7);
-      color: #dde2ff;
-    }
-
-    .chip-green {
-      background: var(--green-soft);
-      border-color: rgba(56, 217, 150, 0.7);
-      color: #d2ffe9;
-    }
-
-    .wheel-canvas-wrap {
-      flex: 1;
-      position: relative;
-    }
-
-    canvas#roulette-wheel {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* CHIPS & SPIN */
-    .controls-block {
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr);
-      gap: 10px;
-    }
-
-    @media (max-width: 700px) {
-      .controls-block {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .chip-label {
-      font-size: 0.8rem;
-      color: var(--text-soft);
-    }
-
-    .chip-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.22);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: radial-gradient(circle at 30% 20%, #ffffff, #ffb800);
-      color: #160b00;
-      box-shadow: 0 0 18px rgba(255, 184, 0, 0.5);
-      transition: transform 0.08s ease, box-shadow 0.08s ease,
-        border 0.08s ease;
-    }
-
-    .chip-btn.secondary {
-      background: radial-gradient(circle at 30% 20%, #ffffff, var(--chip-blue));
-      box-shadow: 0 0 18px rgba(79, 163, 255, 0.5);
-    }
-
-    .chip-btn.alt {
-      background: radial-gradient(circle at 30% 20%, #ffffff, var(--chip-purple));
-      box-shadow: 0 0 18px rgba(165, 107, 255, 0.5);
-    }
-
-    .chip-btn.active {
-      transform: translateY(-2px) scale(1.03);
-      border-color: #ffffff;
-    }
-
-    .spin-buttons {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn {
-      border-radius: 999px;
-      padding: 9px 16px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: transform 0.08s ease, box-shadow 0.08s ease,
-        background 0.08s ease, color 0.08s ease, border 0.08s ease;
-      white-space: nowrap;
-    }
-
-    .btn:active {
-      transform: translateY(1px) scale(0.99);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #ffb800, #ffdf99);
-      color: #160b00;
-      box-shadow: 0 8px 18px rgba(255, 184, 0, 0.45);
-    }
-
-    .btn-primary[disabled] {
-      background: #4a4a4a;
-      color: #d2d2d2;
-      box-shadow: none;
-      cursor: default;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: var(--text-soft);
-    }
-
-    .btn-ghost.small {
-      padding: 5px 10px;
-      font-size: 0.75rem;
-    }
-
-    .btn-ghost[disabled] {
-      opacity: 0.3;
-      cursor: default;
-    }
-
-    .btn-accent {
-      background: rgba(56, 217, 150, 0.12);
-      border: 1px solid rgba(56, 217, 150, 0.7);
-      color: #d2ffe9;
-    }
-
-    .hint-text {
-      margin-top: 6px;
-      font-size: 0.78rem;
-      color: var(--text-soft);
-    }
-
-    /* RIGHT SIDE: TABLE & STATS */
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .balance-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      font-size: 0.9rem;
-    }
-
-    .balance-amount {
-      font-size: 1.15rem;
-      font-weight: 600;
-      font-family: var(--font-mono);
-    }
-
-    .balance-amount.positive {
-      color: var(--green);
-    }
-
-    .balance-amount.negative {
-      color: var(--danger);
-    }
-
-    .balance-note {
-      font-size: 0.78rem;
-      margin-top: 4px;
-      color: var(--text-soft);
-    }
-
-    .stats-row {
-      margin-top: 8px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
-    }
-
-    .stat-card {
-      padding: 6px 8px;
-      border-radius: 10px;
-      background: rgba(6, 8, 22, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 0.76rem;
-    }
-
-    .stat-label {
-      color: var(--text-soft);
-      margin-bottom: 2px;
-    }
-
-    .stat-value {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-    }
-
-    .table-wrapper {
-      margin-top: 10px;
-      border-radius: 14px;
-      background: linear-gradient(145deg, var(--table-green-dark), var(--table-green));
-      border: 1px solid rgba(0, 0, 0, 0.8);
-      padding: 8px;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-    }
-
-    .roulette-grid {
-      display: grid;
-      grid-template-columns: 0.7fr 3fr;
-      gap: 6px;
-    }
-
-    .inside-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 4px;
-    }
-
-    .cell {
-      position: relative;
-      border-radius: 6px;
-      border: 1px solid rgba(0, 0, 0, 0.8);
-      font-size: 0.78rem;
-      font-family: var(--font-mono);
-      text-align: center;
-      padding: 6px 2px;
-      color: #f8f8f8;
-      cursor: pointer;
-      user-select: none;
-      overflow: hidden;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-      transition: box-shadow 0.08s ease, transform 0.08s ease,
-        background 0.08s ease, border 0.08s ease;
-    }
-
-    .cell.zero {
-      background: #0a5d3c;
-    }
-
-    .cell.red {
-      background: #9b1420;
-    }
-
-    .cell.black {
-      background: #15151b;
-    }
-
-    .cell.outside {
-      background: #0e6a45;
-      font-size: 0.76rem;
-      padding: 6px 4px;
-    }
-
-    .cell:hover {
-      box-shadow:
-        inset 0 0 0 2px rgba(255, 255, 255, 0.3),
-        0 0 10px rgba(0, 0, 0, 0.9);
-      transform: translateY(-1px);
-    }
-
-    .cell.bet-active {
-      box-shadow:
-        inset 0 0 0 2px rgba(255, 184, 0, 0.9),
-        0 0 14px rgba(255, 184, 0, 0.6);
-      border-color: rgba(255, 184, 0, 0.9);
-    }
-
-    .bet-chip-badge {
-      position: absolute;
-      bottom: 3px;
-      right: 3px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #ffffff, #ffb800);
-      color: #160b00;
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      font-weight: 600;
-      box-shadow: 0 0 10px rgba(255, 184, 0, 0.7);
-    }
-
-    .outside-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 4px;
-      margin-top: 4px;
-    }
-
-    .outside-row {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 4px;
-      margin-top: 4px;
-    }
-
-    .outside-red {
-      background: #9b1420;
-    }
-
-    .outside-black {
-      background: #15151b;
-    }
-
-    .history-block {
-      margin-top: 10px;
-      border-radius: 12px;
-      background: rgba(6, 8, 22, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      max-height: 180px;
-      overflow-y: auto;
-      font-size: 0.78rem;
-    }
-
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      color: var(--text-soft);
-    }
-
-    .history-row {
-      display: grid;
-      grid-template-columns: 0.8fr 1.3fr 1fr;
-      gap: 4px;
-      padding: 5px 8px;
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
-      align-items: baseline;
-    }
-
-    .history-row:last-child {
-      border-bottom: none;
-    }
-
-    .history-number {
-      font-family: var(--font-mono);
-    }
-
-    .history-change {
-      font-family: var(--font-mono);
-    }
-
-    .history-win {
-      color: var(--green);
-    }
-
-    .history-loss {
-      color: var(--danger);
-    }
-
-    .history-bets {
-      color: var(--text-soft);
-      font-size: 0.72rem;
-      text-align: right;
-    }
-
-    /* TEXT CONTENT */
-    .text-content {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-      gap: 20px;
-      font-size: 0.9rem;
-      color: var(--text-soft);
-    }
-
-    @media (max-width: 900px) {
-      .text-content {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    h2 {
-      font-size: 1.15rem;
-      margin-bottom: 8px;
-    }
-
-    h3 {
-      font-size: 1rem;
-      margin-bottom: 6px;
-      margin-top: 4px;
-      color: #ffffff;
-    }
-
-    p {
-      margin-bottom: 8px;
-      line-height: 1.6;
-    }
-
-    ul {
-      list-style: none;
-      padding-left: 0;
-      margin-bottom: 8px;
-    }
-
-    ul li {
-      padding-left: 16px;
-      position: relative;
-      margin-bottom: 4px;
-    }
-
-    ul li::before {
-      content: "•";
-      position: absolute;
-      left: 4px;
-      color: var(--accent-strong);
-    }
-
-    code {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      background: rgba(6, 8, 22, 0.95);
-      padding: 2px 4px;
-      border-radius: 4px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 12px 16px 16px;
-      font-size: 0.76rem;
-      color: var(--text-soft);
-      text-align: center;
-      background: radial-gradient(circle at top, #171932 0, #050816 65%);
-    }
-  </style>
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="roulette.css" />
+  <script src="roulette.js" defer></script>
 </head>
 <body>
   <main class="page">
-    <header>
+    <!-- H1 + короткое вступление -->
+    <header class="page-header">
       <span class="kicker">Demo • Roulette Casino Game</span>
-      <h1>Roulette Casino Game Demo (Wheel, Chips & Inside/Outside Bets)</h1>
+      <h1>Free Roulette Casino Game Demo — European Wheel Simulator</h1>
       <p class="lead">
-        This roulette demo reproduces a <strong>European-style casino table</strong> with
-        animated wheel, number grid, outside bets and virtual chips. You can test different
-        strategies and see the balance evolve over time — no real money involved.
+        This free roulette demo reproduces a
+        <strong>European single-zero roulette table</strong> with a realistic wheel number order,
+        inside/outside bets and virtual chips. You can test roulette strategies in your browser,
+        watch the bankroll move, and study variance — with no registration and no real-money play.
       </p>
     </header>
 
-    <section class="layout">
-      <!-- LEFT: WHEEL + CONTROLS -->
-      <section class="card">
-        <div class="card-header">
-          <div class="title-row">
-            <span class="logo">Roulette Demo</span>
-            <div class="subtitle">Single-zero wheel • Virtual balance • Strategy sandbox</div>
-          </div>
-          <div class="round-info">
-            <div>Spin <span id="round-id" class="round-id">#1</span></div>
-            <div id="phase-pill" class="phase-pill phase-idle">
-              <span class="dot"></span>
-              <span id="phase-label" class="phase-label">Place your bets</span>
+    <!-- H2 + окно игры -->
+    <section id="roulette-demo" class="game-section">
+      <h2>Roulette demo — play in your browser</h2>
+
+      <section class="layout">
+        <!-- LEFT: WHEEL + CONTROLS -->
+        <section class="card">
+          <div class="card-header">
+            <div class="title-row">
+              <span class="logo">Roulette Demo</span>
+              <div class="subtitle">European wheel • Virtual balance • Strategy sandbox</div>
+            </div>
+            <div class="round-info">
+              <div>Spin <span id="round-id" class="round-id">#1</span></div>
+              <div id="phase-pill" class="phase-pill phase-idle">
+                <span class="dot"></span>
+                <span id="phase-label" class="phase-label">Place your bets</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="wheel-shell">
-          <div class="wheel-top-row">
-            <div id="result-main" class="result-main">
-              Result: <strong>–</strong>
-              <span id="result-color" class="result-color"></span>
+          <div class="wheel-shell">
+            <div class="wheel-top-row">
+              <div id="result-main" class="result-main">
+                Result: <strong>–</strong>
+                <span id="result-color" class="result-color"></span>
+              </div>
+              <div>
+                <span style="font-size:0.78rem; color:var(--text-soft);">Last results</span>
+                <div id="last-results" class="last-results"></div>
+              </div>
+            </div>
+
+            <div class="wheel-canvas-wrap">
+              <div class="wheel-pointer"></div>
+              <canvas id="roulette-wheel"></canvas>
+              <div id="wheel-result-badge" class="wheel-result-badge">
+                <span id="wheel-result-number">–</span>
+                <span id="wheel-result-text">Place your bets</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls-block">
+            <div>
+              <div class="chip-row">
+                <span class="chip-label">Choose chip size:</span>
+                <button class="chip-btn active" data-chip="1">1</button>
+                <button class="chip-btn secondary" data-chip="5">5</button>
+                <button class="chip-btn alt" data-chip="10">10</button>
+                <button class="chip-btn" data-chip="25">25</button>
+              </div>
+              <p class="hint-text">
+                Click any field on the roulette layout to add chips. You can combine straight
+                numbers with outside bets in the same spin.
+              </p>
             </div>
             <div>
-              <span style="font-size:0.78rem; color:var(--text-soft);">Last results</span>
-              <div id="last-results" class="last-results"></div>
-            </div>
-          </div>
-
-          <div class="wheel-canvas-wrap">
-            <canvas id="roulette-wheel"></canvas>
-          </div>
-        </div>
-
-        <div class="controls-block">
-          <div>
-            <div class="chip-row">
-              <span class="chip-label">Choose chip size:</span>
-              <button class="chip-btn active" data-chip="1">1</button>
-              <button class="chip-btn secondary" data-chip="5">5</button>
-              <button class="chip-btn alt" data-chip="10">10</button>
-              <button class="chip-btn" data-chip="25">25</button>
-            </div>
-            <p class="hint-text">
-              Click any field on the roulette layout to add chips. You can mix inside and outside
-              bets in the same spin.
-            </p>
-          </div>
-          <div>
-            <div class="spin-buttons">
-              <button id="btn-clear" class="btn btn-ghost small" type="button">
-                Clear bets
-              </button>
-              <button id="btn-rebet" class="btn btn-ghost small" type="button" disabled>
-                Rebet
-              </button>
-              <button id="btn-spin" class="btn btn-primary" type="button">
-                Spin
-              </button>
-            </div>
-            <p id="spin-hint" class="hint-text">
-              Set your bets, then press <strong>Spin</strong>. Payouts follow standard European
-              rules for straight, color, even/odd, low/high and dozens.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- RIGHT: TABLE + STATS -->
-      <aside class="sidebar">
-        <section class="card">
-          <div class="balance-line">
-            <span>Demo balance</span>
-            <span id="balance" class="balance-amount">$1,000.00</span>
-          </div>
-          <p class="balance-note">
-            Credits are <strong>virtual</strong>. Refresh this page to reset the bankroll and
-            start a fresh session.
-          </p>
-
-          <div class="stats-row">
-            <div class="stat-card">
-              <div class="stat-label">Total wagered</div>
-              <div id="stat-wagered" class="stat-value">$0.00</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Total profit</div>
-              <div id="stat-profit" class="stat-value">$0.00</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Sample RTP</div>
-              <div id="stat-rtp" class="stat-value">–</div>
-            </div>
-          </div>
-
-          <div class="table-wrapper">
-            <div class="roulette-grid">
-              <div id="zero-column">
-                <!-- 0 will be injected here -->
+              <div class="spin-buttons">
+                <button id="btn-clear" class="btn btn-ghost small" type="button">
+                  Clear bets
+                </button>
+                <button id="btn-rebet" class="btn btn-ghost small" type="button" disabled>
+                  Rebet
+                </button>
+                <button id="btn-spin" class="btn btn-primary" type="button">
+                  Spin
+                </button>
               </div>
-              <div id="inside-bets" class="inside-grid">
-                <!-- 1–36 cells injected here -->
-              </div>
-            </div>
-
-            <div id="outside-bets" class="outside-grid">
-              <!-- Outside bets injected by JS -->
-            </div>
-
-            <div id="outside-bets-row" class="outside-row">
-              <!-- Dozens and 1-18/19-36 injected by JS -->
-            </div>
-          </div>
-
-          <div class="history-block">
-            <div class="history-header">
-              <span>Spin history (latest first)</span>
-              <button id="btn-clear-history" class="btn-ghost small" type="button">
-                Clear
-              </button>
-            </div>
-            <div id="history" class="history-list">
-              <!-- rows injected -->
+              <p id="spin-hint" class="hint-text">
+                Set your bets, then press <strong>Spin</strong>. Payouts follow standard European
+                roulette rules for straight numbers, color, even/odd, low/high and dozens.
+              </p>
             </div>
           </div>
         </section>
-      </aside>
+
+        <!-- RIGHT: TABLE + STATS -->
+        <aside class="sidebar">
+          <section class="card">
+            <div class="balance-line">
+              <span>Demo balance</span>
+              <span id="balance" class="balance-amount">$1,000.00</span>
+            </div>
+            <p class="balance-note">
+              Credits are <strong>virtual</strong>. Refresh this page to reset the bankroll and
+              start a fresh roulette session.
+            </p>
+
+            <div class="stats-row">
+              <div class="stat-card">
+                <div class="stat-label">Total wagered</div>
+                <div id="stat-wagered" class="stat-value">$0.00</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Total profit</div>
+                <div id="stat-profit" class="stat-value">$0.00</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Sample RTP</div>
+                <div id="stat-rtp" class="stat-value">–</div>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <div class="roulette-grid">
+                <div id="zero-column">
+                  <!-- 0 injected -->
+                </div>
+                <div id="inside-bets" class="inside-grid">
+                  <!-- 1–36 injected -->
+                </div>
+              </div>
+
+              <div id="outside-bets" class="outside-grid">
+                <!-- outside top row -->
+              </div>
+
+              <div id="outside-bets-row" class="outside-row">
+                <!-- dozens + 1–18 / 19–36 -->
+              </div>
+            </div>
+
+            <div class="history-block">
+              <div class="history-header">
+                <span>Spin history (latest first)</span>
+                <button id="btn-clear-history" class="btn-ghost small" type="button">
+                  Clear
+                </button>
+              </div>
+              <div id="history" class="history-list">
+                <!-- rows injected -->
+              </div>
+            </div>
+          </section>
+        </aside>
+      </section>
     </section>
 
-    <!-- TEXT / SEO BLOCK -->
-    <section class="text-content">
+    <!-- H2 + текст / SEO / FAQ -->
+    <section id="about-roulette-demo" class="text-section">
       <article>
-        <h2>How this roulette demo works</h2>
+        <h2>How this European roulette demo works</h2>
         <p>
-          The demo is based on a <strong>European roulette wheel</strong> with numbers from 0 to 36.
-          For bets, it supports straight numbers, red/black, even/odd, low/high and dozens. The
-          rules are straightforward: if your bet matches the outcome, you get a payout according to
-          classic roulette odds. Otherwise, the chips are lost.
+          The game uses a <strong>European roulette wheel</strong> with numbers from 0 to 36 and
+          the real casino number order on the rim. The wheel layout is single-zero only, which
+          means a lower house edge compared to American roulette with 0 and 00.
         </p>
         <p>
-          Payout examples in this demo:
+          For bets, the demo supports popular inside and outside options:
         </p>
         <ul>
           <li><strong>Straight number (e.g. 17):</strong> pays 35:1.</li>
@@ -874,30 +247,62 @@
           <li><strong>Dozens (1–12, 13–24, 25–36):</strong> pay 2:1.</li>
         </ul>
         <p>
-          All balances and bets are simulated locally in the browser. There is no real-money play,
-          no registration, and no communication with any casino operator.
+          All results are generated in the browser. When you press <strong>Spin</strong>, the game
+          randomly selects a pocket on the European wheel, animates the ball towards that segment,
+          and shows the winning number both on the table and directly in the game window.
+        </p>
+        <p>
+          Balances and payouts are simulated locally. There is no real-money play, no registration,
+          and no connection to external websites — this is a standalone
+          <strong>online roulette simulator</strong>.
         </p>
       </article>
 
       <article>
-        <h2>Tips for using this roulette simulator</h2>
+        <h2>Using the free roulette simulator for practice</h2>
         <p>
-          Many players use roulette demos to see how common strategies behave over a long sample
-          of spins. You can try flat betting, progressive systems, or simple rules like “always bet
-          on red until you win”. The statistics box shows how much you’ve wagered, your current
-          profit, and a sample <code>RTP</code> based on winnings returned.
+          Many players prefer to test their ideas on a demo before risking money. This roulette
+          simulator lets you experiment with flat betting, progressive systems, or simple rules
+          like “always bet on red plus one straight number”.
         </p>
-
-        <h3>Good practice ideas</h3>
+        <h3>Ideas for structured testing</h3>
         <ul>
-          <li>Run at least 50–100 spins before judging a strategy.</li>
-          <li>Track your highest drawdown and not just final profit.</li>
-          <li>Compare inside-only bets with outside-only bets.</li>
+          <li>Run at least 50–100 spins before judging any roulette strategy.</li>
+          <li>Track not only profit but also the deepest drawdown on your balance.</li>
+          <li>Compare aggressive inside bets with conservative outside-only bets.</li>
         </ul>
         <p>
-          Real casinos add table limits, maximum bet size, and house edge on every outcome. This
-          demo doesn’t remove that edge or guarantee any profit; it simply lets you experience the
-          volatility and flow of roulette rounds in a safe environment.
+          The stats panel shows how much you’ve wagered, your current profit, and a sample
+          <code>RTP</code> calculated from winnings returned. It helps visualise how the house edge
+          and variance work over time.
+        </p>
+
+        <h2>FAQ: free online roulette demo</h2>
+
+        <h3>Is this roulette game really free?</h3>
+        <p>
+          Yes. Every chip in this demo represents play money only. You can add bets to the table,
+          spin the wheel and reset the session as often as you want without depositing anything.
+        </p>
+
+        <h3>Can I win real money with this simulator?</h3>
+        <p>
+          No. This project is built strictly as a demonstration and learning tool. It does not
+          accept real deposits or pay out winnings, and it isn’t tied to any online casino brands.
+        </p>
+
+        <h3>Do I need an account or signup?</h3>
+        <p>
+          No registration is required. The game runs in your browser as a simple HTML/JS application.
+          Just open the page, choose chip sizes, place bets on the roulette table and spin.
+        </p>
+
+        <h3>Does this roulette game use the real wheel number order?</h3>
+        <p>
+          Yes. The wheel in this demo follows the standard
+          <strong>European roulette number sequence</strong> with a single zero. The animation
+          drives the ball towards the winning pocket on that wheel, so the visual result matches
+          the underlying outcome.
         </p>
       </article>
     </section>
@@ -908,639 +313,5 @@
     It does not accept deposits, pay out winnings, or represent any specific casino. Check your local
     laws and always gamble responsibly.
   </footer>
-
-  <script>
-    (function () {
-      // --- BASIC CONSTANTS ---
-      const reds = new Set([
-        1, 3, 5, 7, 9, 12, 14, 16, 18,
-        19, 21, 23, 25, 27, 30, 32, 34, 36
-      ]);
-
-      function getColor(num) {
-        if (num === 0) return "green";
-        return reds.has(num) ? "red" : "black";
-      }
-
-      // DOM elements
-      const canvas = document.getElementById("roulette-wheel");
-      const ctx = canvas.getContext("2d");
-      let canvasWidth = 0;
-      let canvasHeight = 0;
-
-      const roundIdEl = document.getElementById("round-id");
-      const phasePill = document.getElementById("phase-pill");
-      const phaseLabel = document.getElementById("phase-label");
-      const resultMain = document.getElementById("result-main").querySelector("strong");
-      const resultColorEl = document.getElementById("result-color");
-      const lastResultsEl = document.getElementById("last-results");
-
-      const chipButtons = document.querySelectorAll(".chip-btn");
-      const btnSpin = document.getElementById("btn-spin");
-      const btnClear = document.getElementById("btn-clear");
-      const btnRebet = document.getElementById("btn-rebet");
-      const btnClearHistory = document.getElementById("btn-clear-history");
-      const spinHint = document.getElementById("spin-hint");
-
-      const zeroColumn = document.getElementById("zero-column");
-      const insideBetsContainer = document.getElementById("inside-bets");
-      const outsideBetsContainer = document.getElementById("outside-bets");
-      const outsideBetsRow = document.getElementById("outside-bets-row");
-
-      const balanceEl = document.getElementById("balance");
-      const statWagered = document.getElementById("stat-wagered");
-      const statProfit = document.getElementById("stat-profit");
-      const statRtp = document.getElementById("stat-rtp");
-      const historyEl = document.getElementById("history");
-
-      // --- STATE ---
-      let roundId = 1;
-      let balanceBase = 1000;
-      let balance = 1000;
-      let totalWagered = 0;
-      let totalReturned = 0;
-
-      let selectedChip = 1;
-      let bets = {}; // key -> {type, value, amount}
-      let lastBets = null;
-
-      let isSpinning = false;
-      let ballAngle = 0;
-      let spinStartTime = 0;
-      const spinDuration = 4000;
-      const spinRotations = 6 * Math.PI * 2;
-      let spinAnimId = null;
-
-      let lastResults = [];
-      const maxLastResults = 12;
-
-      // --- HELPERS ---
-      function formatMoney(v) {
-        return "$" + v.toFixed(2);
-      }
-
-      function updateBalance() {
-        balanceEl.textContent = formatMoney(balance);
-        balanceEl.classList.remove("positive", "negative");
-        if (balance > balanceBase) {
-          balanceEl.classList.add("positive");
-        } else if (balance < balanceBase) {
-          balanceEl.classList.add("negative");
-        }
-      }
-
-      function updateStats() {
-        statWagered.textContent = formatMoney(totalWagered);
-        const profit = balance - balanceBase;
-        statProfit.textContent = formatMoney(profit);
-        if (totalWagered > 0) {
-          const rtp = (totalReturned / totalWagered) * 100;
-          statRtp.textContent = rtp.toFixed(1) + "%";
-        } else {
-          statRtp.textContent = "–";
-        }
-      }
-
-      function setPhase(name) {
-        phasePill.className = "phase-pill";
-        switch (name) {
-          case "betting":
-            phasePill.classList.add("phase-betting");
-            phaseLabel.textContent = "Place your bets";
-            break;
-          case "spinning":
-            phasePill.classList.add("phase-spinning");
-            phaseLabel.textContent = "Spinning";
-            break;
-          case "result":
-            phasePill.classList.add("phase-result");
-            phaseLabel.textContent = "Result";
-            break;
-          default:
-            phasePill.classList.add("phase-idle");
-            phaseLabel.textContent = "Place your bets";
-        }
-      }
-
-      // --- CANVAS / WHEEL DRAWING ---
-      function resizeCanvas() {
-        const rect = canvas.parentElement.getBoundingClientRect();
-        canvasWidth = rect.width;
-        canvasHeight = rect.height;
-        canvas.width = canvasWidth * window.devicePixelRatio;
-        canvas.height = canvasHeight * window.devicePixelRatio;
-        ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
-        drawWheel();
-      }
-
-      function drawWheel() {
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        const cx = canvasWidth / 2;
-        const cy = canvasHeight / 2;
-        const outerR = Math.min(canvasWidth, canvasHeight) / 2 - 8;
-        const innerR = outerR * 0.6;
-        const centerR = innerR * 0.6;
-
-        // Outer ring segments (simple alternation red/black)
-        const segments = 37;
-        const angleStep = (Math.PI * 2) / segments;
-
-        for (let i = 0; i < segments; i++) {
-          const start = i * angleStep;
-          const end = start + angleStep;
-          ctx.beginPath();
-          ctx.arc(cx, cy, outerR, start, end);
-          ctx.arc(cx, cy, innerR, end, start, true);
-          ctx.closePath();
-          let color;
-          if (i === 0) {
-            color = "#0a5d3c"; // 0 (green)
-          } else {
-            color = i % 2 === 0 ? "#9b1420" : "#15151b";
-          }
-          ctx.fillStyle = color;
-          ctx.fill();
-
-          ctx.strokeStyle = "rgba(0,0,0,0.85)";
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-
-        // Center disc
-        const gradient = ctx.createRadialGradient(cx - 5, cy - 5, 5, cx, cy, centerR);
-        gradient.addColorStop(0, "#fdf6cc");
-        gradient.addColorStop(0.5, "#ffb800");
-        gradient.addColorStop(1, "#5c3e02");
-        ctx.beginPath();
-        ctx.arc(cx, cy, centerR, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-        ctx.strokeStyle = "rgba(0,0,0,0.6)";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Ball
-        const ballR = outerR - 6;
-        const bx = cx + Math.cos(ballAngle) * ballR;
-        const by = cy + Math.sin(ballAngle) * ballR;
-
-        ctx.beginPath();
-        ctx.arc(bx, by, 6, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
-        ctx.fill();
-        ctx.strokeStyle = "rgba(0,0,0,0.5)";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-
-      function easingOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-      }
-
-      function startSpinAnimation(onComplete) {
-        isSpinning = true;
-        setPhase("spinning");
-        spinStartTime = performance.now();
-        const startAngle = ballAngle;
-
-        function step(now) {
-          const elapsed = now - spinStartTime;
-          let t = elapsed / spinDuration;
-          if (t > 1) t = 1;
-          const eased = easingOutCubic(t);
-          ballAngle = startAngle + spinRotations * eased;
-          drawWheel();
-
-          if (t < 1) {
-            spinAnimId = requestAnimationFrame(step);
-          } else {
-            isSpinning = false;
-            if (typeof onComplete === "function") onComplete();
-          }
-        }
-
-        if (spinAnimId) cancelAnimationFrame(spinAnimId);
-        spinAnimId = requestAnimationFrame(step);
-      }
-
-      // --- BET LAYOUT ---
-      function createBetCell(parent, label, classes, type, value) {
-        const cell = document.createElement("div");
-        cell.className = "cell " + (classes || "");
-        cell.textContent = label;
-        cell.dataset.betType = type;
-        cell.dataset.value = value;
-        parent.appendChild(cell);
-        return cell;
-      }
-
-      function buildLayout() {
-        // Zero column
-        const zeroCell = createBetCell(zeroColumn, "0", "zero", "straight", "0");
-        zeroCell.style.height = "100%";
-
-        // Inside numbers: classic 3-column roulette layout
-        for (let row = 0; row < 12; row++) {
-          const numbers = [
-            3 * row + 3,
-            3 * row + 2,
-            3 * row + 1,
-          ]; // visually 3/2/1, 6/5/4, ...
-          numbers.forEach((num) => {
-            const color = getColor(num);
-            const classes = color === "red" ? "red" : "black";
-            createBetCell(
-              insideBetsContainer,
-              String(num),
-              classes,
-              "straight",
-              String(num)
-            );
-          });
-        }
-
-        // Outside bets (top row: Red, Black, Even, Odd)
-        const outsideConfigs = [
-          { label: "RED", classes: "outside outside-red", type: "color", value: "red" },
-          { label: "BLACK", classes: "outside outside-black", type: "color", value: "black" },
-          { label: "EVEN", classes: "outside", type: "parity", value: "even" },
-          { label: "ODD", classes: "outside", type: "parity", value: "odd" },
-        ];
-        outsideConfigs.forEach((cfg) =>
-          createBetCell(
-            outsideBetsContainer,
-            cfg.label,
-            cfg.classes,
-            cfg.type,
-            cfg.value
-          )
-        );
-
-        // Second row: 1–18, 19–36, dozens
-        const rowConfigs = [
-          { label: "1–18", type: "range", value: "low" },
-          { label: "19–36", type: "range", value: "high" },
-          { label: "1st 12", type: "dozen", value: "1" },
-          { label: "2nd 12", type: "dozen", value: "2" },
-          { label: "3rd 12", type: "dozen", value: "3" },
-        ];
-
-        rowConfigs.forEach((cfg) =>
-          createBetCell(
-            outsideBetsRow,
-            cfg.label,
-            "outside",
-            cfg.type,
-            cfg.value
-          )
-        );
-      }
-
-      // --- BET HANDLING ---
-      function getTotalPlannedBet() {
-        return Object.values(bets).reduce((sum, b) => sum + b.amount, 0);
-      }
-
-      function updateBetBadge(cell, amount) {
-        let badge = cell.querySelector(".bet-chip-badge");
-        if (!badge && amount > 0) {
-          badge = document.createElement("div");
-          badge.className = "bet-chip-badge";
-          cell.appendChild(badge);
-        }
-        if (badge) {
-          badge.textContent = amount;
-          if (amount <= 0) {
-            badge.remove();
-          }
-        }
-      }
-
-      function refreshBetClasses() {
-        document
-          .querySelectorAll(".cell.bet-active")
-          .forEach((c) => c.classList.remove("bet-active"));
-        Object.keys(bets).forEach((key) => {
-          const bet = bets[key];
-          const selector =
-            '.cell[data-bet-type="' +
-            bet.type +
-            '"][data-value="' +
-            bet.value +
-            '"]';
-          const cell = document.querySelector(selector);
-          if (cell && bet.amount > 0) {
-            cell.classList.add("bet-active");
-            updateBetBadge(cell, bet.amount);
-          }
-        });
-      }
-
-      function clearBets() {
-        bets = {};
-        document.querySelectorAll(".cell.bet-active").forEach((cell) => {
-          cell.classList.remove("bet-active");
-          const badge = cell.querySelector(".bet-chip-badge");
-          if (badge) badge.remove();
-        });
-      }
-
-      function attachBetHandlers() {
-        document
-          .querySelectorAll(".cell[data-bet-type]")
-          .forEach((cell) => {
-            cell.addEventListener("click", () => {
-              if (isSpinning) return;
-              const type = cell.dataset.betType;
-              const value = cell.dataset.value;
-              const key = type + ":" + value;
-              const currentTotal = getTotalPlannedBet();
-
-              if (currentTotal + selectedChip > balance) {
-                alert("Planned bets exceed your current balance.");
-                return;
-              }
-
-              if (!bets[key]) {
-                bets[key] = { type, value, amount: 0 };
-              }
-              bets[key].amount += selectedChip;
-              refreshBetClasses();
-            });
-          });
-      }
-
-      // --- CHIP SELECTION ---
-      function attachChipHandlers() {
-        chipButtons.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            chipButtons.forEach((b) => b.classList.remove("active"));
-            btn.classList.add("active");
-            selectedChip = parseInt(btn.dataset.chip, 10);
-          });
-        });
-      }
-
-      // --- RESULT / HISTORY ---
-      function pushResultChip(num, color) {
-        lastResults.unshift({ num, color });
-        if (lastResults.length > maxLastResults) lastResults.pop();
-        lastResultsEl.innerHTML = "";
-
-        lastResults.forEach((res) => {
-          const chip = document.createElement("span");
-          chip.className = "result-chip";
-          if (res.color === "red") chip.classList.add("chip-red");
-          else if (res.color === "black") chip.classList.add("chip-black");
-          else chip.classList.add("chip-green");
-          chip.textContent = res.num;
-          lastResultsEl.appendChild(chip);
-        });
-      }
-
-      function addHistoryRow(num, color, netChange, betSummary) {
-        const row = document.createElement("div");
-        row.className = "history-row";
-
-        const numberSpan = document.createElement("span");
-        numberSpan.className = "history-number";
-        numberSpan.textContent = num + " (" + color + ")";
-
-        const changeSpan = document.createElement("span");
-        changeSpan.className = "history-change";
-        if (netChange >= 0) {
-          changeSpan.classList.add("history-win");
-          changeSpan.textContent = "+" + formatMoney(netChange);
-        } else {
-          changeSpan.classList.add("history-loss");
-          changeSpan.textContent = formatMoney(netChange);
-        }
-
-        const betsSpan = document.createElement("span");
-        betsSpan.className = "history-bets";
-        betsSpan.textContent = betSummary;
-
-        row.appendChild(numberSpan);
-        row.appendChild(changeSpan);
-        row.appendChild(betsSpan);
-
-        historyEl.insertBefore(row, historyEl.firstChild);
-        while (historyEl.children.length > 80) {
-          historyEl.removeChild(historyEl.lastChild);
-        }
-      }
-
-      // --- SPIN & RESOLUTION ---
-      function randomNumber() {
-        return Math.floor(Math.random() * 37); // 0–36
-      }
-
-      function resolveBets(resultNumber, resultColor, activeBets) {
-        let totalBet = 0;
-        let totalReturn = 0;
-        const betSummaryParts = [];
-
-        Object.values(activeBets).forEach((bet) => {
-          const amount = bet.amount;
-          if (amount <= 0) return;
-          totalBet += amount;
-          betSummaryParts.push(bet.type + ":" + bet.value + " $" + amount);
-
-          let win = 0;
-          switch (bet.type) {
-            case "straight": {
-              const target = parseInt(bet.value, 10);
-              if (target === resultNumber) {
-                win = amount * 36; // 35:1 + stake
-              }
-              break;
-            }
-            case "color": {
-              if (resultNumber !== 0 && bet.value === resultColor) {
-                win = amount * 2;
-              }
-              break;
-            }
-            case "parity": {
-              if (resultNumber !== 0) {
-                if (bet.value === "even" && resultNumber % 2 === 0) {
-                  win = amount * 2;
-                } else if (bet.value === "odd" && resultNumber % 2 === 1) {
-                  win = amount * 2;
-                }
-              }
-              break;
-            }
-            case "range": {
-              if (resultNumber !== 0) {
-                if (bet.value === "low" && resultNumber >= 1 && resultNumber <= 18) {
-                  win = amount * 2;
-                } else if (
-                  bet.value === "high" &&
-                  resultNumber >= 19 &&
-                  resultNumber <= 36
-                ) {
-                  win = amount * 2;
-                }
-              }
-              break;
-            }
-            case "dozen": {
-              if (resultNumber >= 1 && resultNumber <= 12 && bet.value === "1") {
-                win = amount * 3;
-              } else if (
-                resultNumber >= 13 &&
-                resultNumber <= 24 &&
-                bet.value === "2"
-              ) {
-                win = amount * 3;
-              } else if (
-                resultNumber >= 25 &&
-                resultNumber <= 36 &&
-                bet.value === "3"
-              ) {
-                win = amount * 3;
-              }
-              break;
-            }
-          }
-          totalReturn += win;
-        });
-
-        const net = totalReturn - totalBet;
-        balance += totalReturn;
-        totalReturned += totalReturn;
-        totalWagered += totalBet;
-
-        updateBalance();
-        updateStats();
-
-        const colorLabel =
-          resultColor === "red"
-            ? "Red"
-            : resultColor === "black"
-            ? "Black"
-            : "Green";
-        const summary =
-          betSummaryParts.length > 0 ? betSummaryParts.join(", ") : "—";
-
-        addHistoryRow(resultNumber, colorLabel, net, summary);
-        pushResultChip(resultNumber, resultColor);
-
-        // Main result display
-        resultMain.textContent = resultNumber;
-        resultColorEl.textContent = colorLabel;
-        resultColorEl.className = "result-color";
-        if (resultColor === "red") resultColorEl.classList.add("result-red");
-        else if (resultColor === "black") resultColorEl.classList.add("result-black");
-        else resultColorEl.classList.add("result-green");
-
-        if (net > 0) {
-          spinHint.innerHTML =
-            "You won <strong>" +
-            formatMoney(net) +
-            "</strong> on this spin. Place your next bets or press <strong>Rebet</strong>.";
-        } else if (net < 0) {
-          spinHint.innerHTML =
-            "You lost <strong>" +
-            formatMoney(-net) +
-            "</strong> this round. Adjust your bets or try a different pattern.";
-        } else {
-          spinHint.innerHTML =
-            "No net win this spin. You can change the bet mix or rebet the same pattern.";
-        }
-
-        setPhase("result");
-      }
-
-      function handleSpin() {
-        if (isSpinning) return;
-        const totalBet = getTotalPlannedBet();
-        if (totalBet <= 0) {
-          alert("Place at least one bet before spinning.");
-          return;
-        }
-        if (totalBet > balance) {
-          alert("Total bet exceeds current balance.");
-          return;
-        }
-
-        // Lock current bets
-        const activeBets = JSON.parse(JSON.stringify(bets));
-        lastBets = JSON.parse(JSON.stringify(bets));
-        btnRebet.disabled = false;
-
-        // Deduct from balance
-        balance -= totalBet;
-        updateBalance();
-
-        spinHint.innerHTML =
-          "Wheel spinning… watch the ball and wait for the outcome.";
-        setPhase("spinning");
-        roundId += 1;
-        roundIdEl.textContent = "#" + roundId;
-
-        // Start animation, then resolve
-        startSpinAnimation(() => {
-          const resultNumber = randomNumber();
-          const resultColor = getColor(resultNumber);
-
-          resolveBets(resultNumber, resultColor, activeBets);
-          isSpinning = false;
-        });
-      }
-
-      // --- BUTTON HANDLERS ---
-      function attachControlHandlers() {
-        btnSpin.addEventListener("click", handleSpin);
-
-        btnClear.addEventListener("click", () => {
-          if (isSpinning) return;
-          clearBets();
-          spinHint.innerHTML =
-            "All bets cleared. Click on inside or outside fields to place new chips.";
-        });
-
-        btnRebet.addEventListener("click", () => {
-          if (isSpinning) return;
-          if (!lastBets) return;
-          clearBets();
-          bets = JSON.parse(JSON.stringify(lastBets));
-          const totalBet = getTotalPlannedBet();
-          if (totalBet > balance) {
-            bets = {};
-            refreshBetClasses();
-            alert("Not enough balance to rebet the last stake pattern.");
-            return;
-          }
-          refreshBetClasses();
-          spinHint.innerHTML =
-            "Previous pattern restored. Adjust if needed, then press <strong>Spin</strong>.";
-        });
-
-        btnClearHistory.addEventListener("click", () => {
-          historyEl.innerHTML = "";
-          lastResults = [];
-          lastResultsEl.innerHTML = "";
-        });
-      }
-
-      // --- INIT ---
-      function init() {
-        buildLayout();
-        attachBetHandlers();
-        attachChipHandlers();
-        attachControlHandlers();
-        updateBalance();
-        updateStats();
-        setPhase("betting");
-        resizeCanvas();
-        drawWheel();
-      }
-
-      window.addEventListener("resize", resizeCanvas);
-      init();
-    })();
-  </script>
 </body>
 </html>
