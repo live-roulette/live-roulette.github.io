@@ -800,3 +800,14 @@ footer {
   text-align: center;
   background: radial-gradient(circle at top, #171932 0, #050816 65%);
 }
+
+.footer-meta {
+  margin-top: 4px;
+  font-size: 0.76rem;
+}
+
+footer a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
